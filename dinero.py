@@ -168,4 +168,84 @@ def call_claude(messages, system_prompt):
     print("❌ Still not valid JSON after retry. Using fallback.")
     return None
 
-    
+    # 5. MANAGE CHAMA - OLD FEATURES, FULLY KEPT
+def manage_chama():
+    """Sub-menu for direct member management (no AI needed)."""
+    data = load_data()
+
+    while True:
+        print("\n--- MANAGE CHAMA (Dinero Records) ---")
+        print("1. Add Member")
+        print("2. Record Payment")
+        print("3. View Balances")
+        print("4. Remove Member")
+        print("5. Back to Main Menu")
+
+        choice = input("Choose 1-5: ").strip()
+
+        if choice == "1":
+            name = input("Enter member name: ").strip().title()
+            if not name:
+                print("⚠️ Name cannot be empty.")
+                continue
+            if name in data["members"]:
+                print(f"{name} already exists.")
+            else:
+                data["members"][name] = 0
+                save_data(data)
+                print(f"✅ {name} added! Target: {TARGET} KES")
+
+        elif choice == "2":
+            name = input("Member name: ").strip().title()
+            if not name:
+                print("⚠️ Name cannot be empty.")
+                continue
+            if name not in data["members"]:
+                print(f"❌ {name} not found. Add them first with option 1.")
+                continue
+            amount_str = input("Amount paid (KES): ").strip()
+            if not amount_str:
+                print("⚠️ Amount cannot be empty.")
+                continue
+            try:
+                amount = int(amount_str)
+                if amount <= 0:
+                    print("⚠️ Amount must be more than 0.")
+                    continue
+            except ValueError:
+                print("⚠️ Please enter a number, e.g. 500")
+                continue
+            data["members"][name] += amount
+            save_data(data)
+            print(f"✅ Recorded {amount} KES for {name}. Total now: {data['members'][name]} KES | Balance: {get_balance(data['members'][name])} KES")
+
+        elif choice == "3":
+            print("\n--- Balances ---")
+            if not data["members"]:
+                print("No members yet. Add one first.")
+            else:
+                total = 0
+                for name, paid in data["members"].items():
+                    bal = get_balance(paid)
+                    status = "✅ DONE" if bal <= 0 else f"Owes {bal}"
+                    print(f"{name}: Paid {paid} KES | Balance {bal} KES | {status}")
+                    total += paid
+                print(f"\n💰 TOTAL COLLECTED: {total} KES")
+
+        elif choice == "4":
+            name = input("Member name to remove: ").strip().title()
+            if name not in data["members"]:
+                print("Member not found.")
+            else:
+                confirm = input(f"Are you sure you want to remove {name}? (yes/no): ").strip().lower()
+                if confirm == "yes":
+                    del data["members"][name]
+                    save_data(data)
+                    print(f"{name} removed.")
+                else:
+                    print("Cancelled.")
+
+        elif choice == "5":
+            break
+        else:
+            print("Please choose 1 to 5 only.")
