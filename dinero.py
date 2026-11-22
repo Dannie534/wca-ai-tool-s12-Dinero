@@ -261,39 +261,7 @@ def manage_chama():
             break
         else:
             print("Please choose 1 to 5 only.")
-
-elif choice == "3":
-            print("\n--- Balances ---")
-            if not data["members"]:
-                print("No members yet. Add one first.")
-            else:
-                total = 0
-                for name, paid in data["members"].items():
-                    bal = get_balance(paid)
-                    status = "✅ DONE" if bal <= 0 else f"Owes {bal}"
-                    print(f"{name}: Paid {paid} KES | Balance {bal} KES | {status}")
-                    total += paid
-                print(f"\n💰 TOTAL COLLECTED: {total} KES")
-
-        elif choice == "4":
-            name = input("Member name to remove: ").strip().title()
-            if name not in data["members"]:
-                print("Member not found.")
-            else:
-                confirm = input(f"Are you sure you want to remove {name}? (yes/no): ").strip().lower()
-                if confirm == "yes":
-                    del data["members"][name]
-                    save_data(data)
-                    print(f"{name} removed.")
-                else:
-                    print("Cancelled.")
-
-        elif choice == "5":
-            break
-        else:
-            print("Please choose 1 to 5 only.")
-
-# 6. START NEW AI SESSION - WITH MEMORY
+    # 6. START NEW AI SESSION - FULL MEMORY
 def start_session():
     """Conversational session. Memory = full messages list sent every turn."""
     data = load_data()
@@ -399,3 +367,79 @@ def start_session():
         print("\n--- Next Steps ---")
         for step in summary["next_steps"]:
             print(f"- {step}")
+
+    # 7. OPEN PAST SESSION
+def open_past_session():
+    """List saved sessions and open one. Handles file not found, bad number, corrupt JSON."""
+    try:
+        files = sorted(glob.glob(os.path.join(SESSIONS_DIR, "*.json")))
+    except Exception as e:
+        print(f"❌ Could not list sessions: {e}")
+        return
+
+    if not files:
+        print("No past sessions found. Start a new session first (Option 1).")
+        return
+
+    print("\n--- Past Dinero Sessions ---")
+    for i, f in enumerate(files, 1):
+        print(f"{i}. {f}")
+
+    try:
+        choice = input("Enter number to open (or press Enter to go back): ").strip()
+        if not choice:
+            return
+        idx = int(choice) - 1
+        if idx < 0 or idx >= len(files):
+            print("❌ Invalid number.")
+            return
+
+        with open(files[idx], "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        print(f"\n===== {files[idx]} =====")
+        print(f"Date: {data.get('date', 'Unknown')}")
+        print(f"Summary: {data.get('summary', {}).get('summary', 'No summary')}")
+        print(f"Total: {data.get('summary', {}).get('total_collected', 0)} KES")
+        print("\n--- Full Conversation ---")
+        for m in data.get("conversation", []):
+            who = "You" if m["role"] == "user" else "Dinero"
+            print(f"{who}: {m['content'][:500]}")
+            print("---")
+
+    except FileNotFoundError:
+        print("❌ That session file cannot be found. It may have been deleted.")
+    except json.JSONDecodeError:
+        print("❌ That session file is corrupt and cannot be opened.")
+    except ValueError:
+        print("❌ Please enter a number, e.g. 1")
+    except Exception as e:
+        print(f"❌ Could not open file: {e}")
+
+        # 8. MAIN MENU - PDF REQUIREMENT: Start / Open / Exit + Manage
+# ============================================================================
+def main():
+    print("Welcome to DINERO - Your Smart Chama Assistant 💰")
+    while True:
+        print("\n===== DINERO =====")
+        print("1. Start New Session (Chat with Dinero AI)")
+        print("2. Open Past Session")
+        print("3. Manage Chama (Add Member / Record Payment / Balances)")
+        print("4. Exit")
+
+        choice = input("Choose 1-4: ").strip()
+
+        if choice == "1":
+            start_session()
+        elif choice == "2":
+            open_past_session()
+        elif choice == "3":
+            manage_chama()
+        elif choice == "4":
+            print("Asante! See you next chama meeting. 👋")
+            break
+        else:
+            print("Please choose 1 to 4 only.")
+
+if __name__ == "__main__":
+    main()
