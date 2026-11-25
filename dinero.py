@@ -41,7 +41,7 @@ KNOWLEDGE = load_knowledge()
 # 1. SYSTEM PROMPT - R-T-C-C-O
 # Role: Dinero, friendly Kenyan chama treasurer assistant
 # Task: Track members/payments, answer questions from conversation history only
-# Context: Kenyan chama, 1000 KES target, simple English only, members like Dante/Makena
+# Context: Kenyan chama, 1000 KES target, simple English only, members like Ian/Oliver
 # Constraints: Never invent member/payment. If unknown, say so. No financial advice beyond records.
 # Output: MUST be valid JSON only: reply, members_mentioned, total_collected
 SYSTEM_PROMPT = """You are Dinero, a friendly Kenyan chama treasurer assistant.
@@ -277,7 +277,7 @@ def start_session():
     messages = []
     print("\n--- New Dinero Session ---")
     print("Chat with Dinero. It remembers everything you say.")
-    print("Try: 'Add Otis, he paid 500' / 'How much has Wanjiru paid?' / 'Who still owes?'")
+    print("Try: 'Add Ian, he paid 500' / 'How much has Ian paid?' / 'Who still owes?'")
     print("Type 'exit' to end session and get summary.")
     print(f"\n📋 {records_text}")
 
@@ -417,7 +417,7 @@ def open_past_session():
         print(f"❌ Could not open file: {e}")
 
         # 8. MAIN MENU - PDF REQUIREMENT: Start / Open / Exit + Manage
-# ============================================================================
+
 def main():
     print("Welcome to DINERO - Your Smart Chama Assistant 💰")
     while True:
