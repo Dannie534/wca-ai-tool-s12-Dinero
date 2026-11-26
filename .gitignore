@@ -4,6 +4,5 @@ __pycache__/
 #Virtual Environment
 venv/
 #Local data - keep your own data private
-dinero_data.json
 dinero_data.json.backup
 sessions/
